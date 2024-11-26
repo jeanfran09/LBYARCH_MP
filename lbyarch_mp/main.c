@@ -4,15 +4,15 @@
 
 extern void x64calc(long long int n, float* arr[][3]);
 
-void getAcceleration(long long int n, float* arr[][3], float* x) {
+void getAcceleration(long long int n, float arr[][3], float* x) {
 	int i;
 	float delta_v, acceleration;
 
 	for (i = 0; i < n; i++) {
-		delta_v = (arr[i][1] - arr[i][0]) * 1000.0 / 3600.0;
+		delta_v = (arr[i][1] - arr[i][0]) * 1000 / 3600;
 		acceleration = delta_v / arr[i][2];
 
-		x = acceleration; 
+		x[i] = acceleration;
 
 		printf("[Row %d] a = %.2f m/s^2\n", i + 1, acceleration);
 	}
@@ -35,7 +35,7 @@ int main() {
 		x[i] = 0.0; 
 	}
 
-	getAcceleration(ARRAY_SIZE, arr[][3]);
+	//getAcceleration(ARRAY_SIZE, arr, x);
 
 	/*
 	int i = 0;
@@ -51,25 +51,29 @@ int main() {
 	//C 
 	//------------------------
 	start = clock();
-	getAcceleration(ARRAY_SIZE, arr);
+	getAcceleration(ARRAY_SIZE, arr, x);
 	end = clock();
 	time_taken = ((double)(end - start) * 1000 / CLOCKS_PER_SEC);
 
+	printf("%lf ms\,\n", time_taken);
 	//sanity check
 	//print the values of x
 	for (i = 0; i < ARRAY_SIZE; i++) {
-		printf("[%d] Acceleration = %lf", i + 1, x[i]);
+		printf("[%d] Acceleration = %lf\n", i + 1, x[i]);
 	}
 
 	//x86-64
 	//------------------------
 	//reinitialize the array
-	float arr[][3] = { {0.0, 62.5, 10.1}, {60.0, 122.3, 5.5},{30.0, 160.7, 7.8} };
+	//float arr[][3] = {{0.0, 62.5, 10.1}, {60.0, 122.3, 5.5},{30.0, 160.7, 7.8}};
 
 	start = clock();
 	x64calc(3, arr);
 	end = clock();
-	printf("%lf ms\,", time_taken);
-
+	time_taken = ((double)(end - start) * 1000 / CLOCKS_PER_SEC);
+	printf("%lf ms\,\n", time_taken);
+	for (i = 0; i < 3; i++) {
+		printf("%f\n", arr[i][2]);//final answer is stored in arr[i][2] might change later
+	}
 	return 0;
 }
