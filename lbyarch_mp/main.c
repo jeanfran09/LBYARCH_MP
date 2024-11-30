@@ -18,7 +18,9 @@ void getAcceleration(long long int n, float arr[][3], float* ans) {
 }
 
 int main() {
-    unsigned long long int ARRAY_SIZE = 100000;
+    unsigned long long int ARRAY_SIZE;
+    printf("\nEnter array size: ");
+    scanf_s("%llu", &ARRAY_SIZE);
     size_t ARRAY_BYTES = ARRAY_SIZE * 3 * sizeof(float);
     clock_t start, end;
     double time_taken;
@@ -28,11 +30,12 @@ int main() {
 
     float* ans = (float*)malloc(ARRAY_SIZE * sizeof(float));
 
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     for (i = 0; i < 10; i++) {
         arr[i][0] = (float)rand() / (RAND_MAX / 50.0f);
         arr[i][1] = 50.0f + (float)rand() / (RAND_MAX / 50.0f);
         arr[i][2] = 5.0f + (float)rand() / (RAND_MAX / 10.0f);
+
     }
 
 
