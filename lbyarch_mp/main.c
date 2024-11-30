@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
-extern void x64calc(long long int n, float arr[][3]);
+extern void x64calc(long long int n, float arr[][3], int* ans);
 
 void getAcceleration(long long int n, float arr[][3], float* ans) {
     int i;
@@ -28,7 +29,8 @@ int main() {
 
     float (*arr)[3] = malloc(ARRAY_BYTES);
 
-    float* ans = (float*)malloc(ARRAY_SIZE * sizeof(float));
+    float* ansC = (float*)malloc(ARRAY_SIZE * sizeof(float));
+    int* ans64 = (int*)malloc(ARRAY_SIZE * sizeof(float));
 
     srand((unsigned int)time(NULL));
     for (i = 0; i < 10; i++) {
@@ -43,12 +45,12 @@ int main() {
     //------------------------
     printf("\nC Execution\n");
     start = clock();
-    getAcceleration(ARRAY_SIZE, arr, ans);
+    getAcceleration(ARRAY_SIZE, arr, ansC);
     end = clock();
     time_taken = ((double)(end - start) * 10000 / CLOCKS_PER_SEC);
     for (i = 0; i < 10; i++) {
-        printf("[Row %d] vf = %.2f | vi = %.2f | t = %.2f | a = %.2f m/s^2\n",
-            i + 1, arr[i][1], arr[i][0], arr[i][2], ans[i]);
+        printf("[Row %d] vf = %.2f | vi = %.2f | t = %.2f | a = %d m/s^2\n",
+            i + 1, arr[i][1], arr[i][0], arr[i][2], (int)round(ansC[i]));
     }
 
     printf("[C] Time: %lf ms\n", time_taken);
@@ -58,12 +60,12 @@ int main() {
     //------------------------
     printf("\nx86-64 Execution\n");
     start = clock();
-    x64calc(ARRAY_SIZE, arr);
+    x64calc(ARRAY_SIZE, arr, ans64);
     end = clock();
     time_taken = ((double)(end - start) * 10000 / CLOCKS_PER_SEC);
 
     for (i = 0; i < 10; i++) {
-        printf("[Row %d] Final answer: %.2f m/s^2\n", i + 1, arr[i][2]);
+        printf("[Row %d] Final answer: %d m/s^2\n", i + 1, ans64[i]);
     }
     printf("[x86-64] Time: %lf ms\n", time_taken);
 
