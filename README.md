@@ -20,4 +20,6 @@ In order to obtain accurate results in executing the assembly function, Query Pe
 Take a screenshot of the program output with the correctness check.
 
 ## Short Video
-short videos (5-10mins) showing your source code, compilation, and execution of the C and x86-64 program
+[![Watch the video](https://img.youtube.com/vi/yyt7ls6oqsc/0.jpg)](https://www.youtube.com/watch?v=yyt7ls6oqsc)
+
+https://www.youtube.com/watch?v=yyt7ls6oqsc
