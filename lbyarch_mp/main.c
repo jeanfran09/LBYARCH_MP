@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <Windows.h>
 
 extern void x64calc(long long int n, float arr[][3], int* ans);
 
@@ -23,7 +24,7 @@ void cmpArr(long long int n, float* c, int* x64) {
 
     for (i = 0; i < n; i++) {
         int roundedC;
-        float fractional_part = c[i] - floorf(c[i]);  //fractional part of c[i]
+        float fractional_part = c[i] - floorf(c[i]);  
 
         if (fractional_part == 0.5f) {
             roundedC = (int)(roundf(c[i] / 2) * 2);
@@ -32,8 +33,8 @@ void cmpArr(long long int n, float* c, int* x64) {
             roundedC = (int)roundf(c[i]);
         }
 
-        printf("Row %d | Original value: %.2f | Rounded value: %d | x64 value: %d\n",
-            i + 1, c[i], roundedC, x64[i]);
+        //printf("Row %d | Original value: %.2f | Rounded value: %d | x64 value: %d\n",
+         //   i + 1, c[i], roundedC, x64[i]);
 
         if (roundedC != x64[i]) {
             error = 1;
@@ -41,10 +42,10 @@ void cmpArr(long long int n, float* c, int* x64) {
     }
 
     if (error == 1) {
-        printf("Values do not match\n");
+        printf("There are errors in some of the acceleration values.\n");
     }
     else {
-        printf("All values are the same\n");
+        printf("All acceleration values are correct!\n");
     }
 }
 
@@ -56,7 +57,7 @@ void getTxt(const char* filename) {
         exit(1);
     }
 
-    if (fscanf_s(ptr, "%llu", &array_size) != 1) { 
+    if (fscanf_s(ptr, "%llu", &array_size) != 1) {
         printf("Error: Failed to read array size from the file.\n");
         fclose(ptr);
         exit(1);
@@ -73,7 +74,6 @@ void getTxt(const char* filename) {
     }
 
     for (unsigned long long i = 0; i < array_size; i++) {
-        //arr[i] = (float*)malloc(3 * sizeof(float));
         if (arr[i] == NULL) {
             printf("Error: Memory allocation failed for row %llu.\n", i);
             fclose(ptr);
@@ -92,51 +92,48 @@ void getTxt(const char* filename) {
     fclose(ptr);
     printf("Successfully read %llu rows from %s\n", array_size, filename);
 
-
     float* ansC = (float*)malloc(array_size * sizeof(float));
     int* ans64 = (int*)malloc(array_size * sizeof(float));
-    clock_t start, end;
-    double time_taken, c_total, c_avg, x_total, x_avg;
-    double total_time = 0.0;
+    LARGE_INTEGER start, end, frequency;
+    double time_taken, total_time = 0.0;
+    double query_total = 0.0, query_avg;
+
+    getAcceleration(array_size, arr, ansC);
+
+    QueryPerformanceFrequency(&frequency);
 
     for (int i = 0; i < 30; i++) {
-        start = clock();
-        getAcceleration(array_size, arr, ansC);
-        end = clock();
-        time_taken = ((double)(end - start) * 1000 / CLOCKS_PER_SEC);
-        total_time += time_taken;
-    }
-    c_total = total_time;
-    c_avg = total_time / 30;
+        QueryPerformanceCounter(&start);
 
-    total_time = 0.0; //reset
-
-    for (int i = 0; i < 30; i++) {
-        start = clock();
         x64calc(array_size, arr, ans64);
-        end = clock();
-        time_taken = ((double)(end - start) * 1000 / CLOCKS_PER_SEC);
+
+        QueryPerformanceCounter(&end);
+
+        time_taken = ((double)(end.QuadPart - start.QuadPart) * 1000000.0) / frequency.QuadPart;
         total_time += time_taken;
     }
-    x_total = total_time;
-    x_avg = total_time / 30;
+
+    query_total = total_time;
+    query_avg = total_time / 30;
+
+    // Printing the results of the acceleration calculations
+    for (unsigned long long j = 0; j < array_size; j++) {
+        printf("[%llu] acceleration = %d\n", j, ans64[j]);
+    }
 
     printf("\n----------------------------------------\n");
-    printf("\nRESULTS \n");
+    printf("\nRESULTS \n\n");
     printf("Number of rows: %llu\n", array_size);
     printf("Correctness check: \n");
     cmpArr(array_size, ansC, ans64);
 
-    printf("\nC Performance\n");
-    printf("Average time taken (30 runs): %.2f ms\n", c_avg);
-    printf("Total time taken   (30 runs): %.2f ms\n", c_total);
-
-    printf("\nx86-64 Performance\n");
-    printf("Average time taken (30 runs): %.2f ms\n", x_avg);
-    printf("Total time taken   (30 runs): %.2f ms\n", x_total);
+    printf("\nQuery Performance\n");
+    printf("Average time per query (30 runs): %.2f 탎\n", query_avg);
+    printf("Total query time for 30 runs: %.2f 탎\n", query_total);
 
     printf("\n----------------------------------------\n");
 }
+
 
 void getInput() {
     unsigned long long int array_size;
@@ -172,45 +169,42 @@ void getInput() {
 
     float* ansC = (float*)malloc(array_size * sizeof(float));
     int* ans64 = (int*)malloc(array_size * sizeof(float));
-    clock_t start, end;
-    double time_taken, c_total, c_avg, x_total, x_avg;
-    double total_time = 0.0;
+    LARGE_INTEGER start, end, frequency;
+    double time_taken, total_time = 0.0;
+    double query_total = 0.0, query_avg;
+
+    getAcceleration(array_size, arr, ansC);
+
+    QueryPerformanceFrequency(&frequency);
 
     for (int i = 0; i < 30; i++) {
-        start = clock();
-        getAcceleration(array_size, arr, ansC);
-        end = clock();
-        time_taken = ((double)(end - start) * 1000 / CLOCKS_PER_SEC);
-        total_time += time_taken;
-    }
-    c_total = total_time;
-    c_avg = total_time / 30;
+        QueryPerformanceCounter(&start);
 
-    total_time = 0.0; //reset
-
-    for (int i = 0; i < 30; i++) {
-        start = clock();
         x64calc(array_size, arr, ans64);
-        end = clock();
-        time_taken = ((double)(end - start) * 1000 / CLOCKS_PER_SEC);
+
+        QueryPerformanceCounter(&end);
+
+        time_taken = ((double)(end.QuadPart - start.QuadPart) * 1000000.0) / frequency.QuadPart;
         total_time += time_taken;
     }
-    x_total = total_time;
-    x_avg = total_time / 30;
+
+    query_total = total_time;
+    query_avg = total_time / 30;
+
+    // Printing the results of the acceleration calculations
+    for (unsigned long long j = 0; j < array_size; j++) {
+        printf("[%llu] acceleration = %d\n", j, ans64[j]);
+    }
 
     printf("\n----------------------------------------\n");
-    printf("\nRESULTS \n");
+    printf("\nRESULTS \n\n");
     printf("Number of rows: %llu\n", array_size);
     printf("Correctness check: \n");
     cmpArr(array_size, ansC, ans64);
 
-    printf("\nC Performance\n");
-    printf("Average time taken (30 runs): %.2f ms\n", c_avg);
-    printf("Total time taken   (30 runs): %.2f ms\n", c_total);
-
-    printf("\nx86-64 Performance\n");
-    printf("Average time taken (30 runs): %.2f ms\n", x_avg);
-    printf("Total time taken   (30 runs): %.2f ms\n", x_total);
+    printf("\nQuery Performance\n");
+    printf("Average time per query (30 runs): %.2f 탎\n", query_avg);
+    printf("Total query time for 30 runs: %.2f 탎\n", query_total);
 
     printf("\n----------------------------------------\n");
 }
@@ -224,8 +218,6 @@ void dispMenu() {
     printf("[5] Read from 10000.txt\n");
     printf("Enter your choice: ");
 }
-
-
 
 int main() {
     //unsigned long long int array_size = 0;
