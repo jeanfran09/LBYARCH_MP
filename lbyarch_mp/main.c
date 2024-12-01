@@ -18,6 +18,24 @@ void getAcceleration(long long int n, float arr[][3], float* ans) {
     }
 }
 
+void cmpArr(long long int n, float* c, int* x64) {
+    int i;
+    int error = 0;
+
+    for (i = 0;i < n;i++) {
+        if ((int)round(c[i]) != x64[i]) {
+            error = 1;
+        }
+    }
+
+    if (error == 1) {
+        printf("Error in checking\n");
+    }
+    else {
+        printf("All values are the same\n");
+    }
+}
+
 int main() {
     unsigned long long int ARRAY_SIZE;
     printf("\nEnter array size: ");
@@ -33,17 +51,18 @@ int main() {
     int* ans64 = (int*)malloc(ARRAY_SIZE * sizeof(float));
 
     srand((unsigned int)time(NULL));
-    for (i = 0; i < 10; i++) {
+    for (i = 0; i < ARRAY_SIZE; i++) {
         arr[i][0] = (float)rand() / (RAND_MAX / 50.0f);
         arr[i][1] = 50.0f + (float)rand() / (RAND_MAX / 50.0f);
         arr[i][2] = 5.0f + (float)rand() / (RAND_MAX / 10.0f);
 
     }
 
+    getAcceleration(ARRAY_SIZE, arr, ansC);
 
     // C Execution
     //------------------------
-    printf("\nC Execution\n");
+    /*printf("\nC Execution\n");
     start = clock();
     getAcceleration(ARRAY_SIZE, arr, ansC);
     end = clock();
@@ -53,7 +72,7 @@ int main() {
             i + 1, arr[i][1], arr[i][0], arr[i][2], (int)round(ansC[i]));
     }
 
-    printf("[C] Time: %lf ms\n", time_taken);
+    printf("[C] Time: %lf ms\n", time_taken);*/
 
 
     // x86-64 Execution
@@ -64,10 +83,13 @@ int main() {
     end = clock();
     time_taken = ((double)(end - start) * 10000 / CLOCKS_PER_SEC);
 
-    for (i = 0; i < 10; i++) {
-        printf("[Row %d] Final answer: %d m/s^2\n", i + 1, ans64[i]);
+    for (i = 0; i < ARRAY_SIZE; i++) {
+        printf("[Row %d] vf = %.2f | vi = %.2f | t = %.2f | a = %d m/s^2\n",
+            i + 1, arr[i][1], arr[i][0], arr[i][2], ans64[i]);
     }
-    printf("[x86-64] Time: %lf ms\n", time_taken);
+
+    cmpArr(ARRAY_SIZE, ansC, ans64);
+    printf("\n[x86-64] Time: %lf ms\n", time_taken);
 
     
 
