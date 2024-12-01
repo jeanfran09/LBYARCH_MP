@@ -7,6 +7,10 @@ bits 64
 default rel
 global x64calc
 
+;rcx - array_size
+;rax - 2D array containing values for calculation
+;r8 - array where acceleration values is stored
+
 x64calc:
     xor r9, r9
     movss xmm0, [var1]
